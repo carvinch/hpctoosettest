@@ -1,0 +1,68 @@
+#!/bin/bash
+
+log_info() {
+  printf "\n\e[0;35m $1\e[0m\n\n"
+}
+
+log_warn() {
+  printf "\e[0;33m $1\e[0m\n"
+}
+
+start() {
+    log_info "Fetching latest HPC Toolset Images.."
+    docker-compose pull
+
+    log_info "Starting HPC Toolset Cluster.."
+    docker-compose up -d --no-build
+
+    log_info "Coldfront URL: https://localhost:2443"
+    log_info "OnDemand URL: https://localhost:3443"
+    log_info "XDMoD URL: https://localhost:4443"
+    log_info "Login to frontend: ssh -p 6222 hpcadmin@localhost"
+}
+
+stop() {
+    log_info "Stopping HPC Toolset Cluster containers.."
+    docker-compose stop
+}
+
+destroy() {
+    log_info "Stopping and removing HPC Toolset Cluster containers and volumes.."
+    docker-compose stop && \
+    docker-compose rm -f -v && \
+    docker-compose down -v
+}
+
+cleanup() {
+    log_warn "** WARNING: This will remove all container images and you'll need to re-download **"
+    log_warn "You probably want to try running the 'destroy' command first."
+    echo ""
+    read -p "Do you want to proceed? (yes/no) " yn
+
+    if [[ $yn == y* ]]; then
+        log_info "Removing HPC Toolset containers and images.."
+        destroy
+        docker rmi $(docker images -f "reference=ubccr/hpcts*" -q)
+    else
+        log_info "cleanup cancelled. existing.."
+    fi
+}
+
+case "$1" in
+    'start')
+        start
+        ;;
+    'stop')
+        stop
+        ;;
+    'cleanup')
+        cleanup
+        ;;
+    'destroy')
+        destroy
+        ;;
+    *)
+        log_info "Usage: $0 { start | stop | destroy | cleanup}"
+        exit 1
+        ;;
+esac
