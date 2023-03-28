@@ -15,7 +15,7 @@ set timeout 240
 spawn "xdmod-setup"
 
 selectMenuOption 1
-answerQuestion {Site Address} https://localhost:4443/
+answerQuestion {Site Address} https://192.168.0.125:4443/
 provideInput {Email Address:} ccr-xdmod-help@buffalo.edu
 provideInput {Chromium Path:} /usr/lib64/chromium-browser/headless_shell
 provideInput {Center Logo Path:} /srv/xdmod/small-logo.png
